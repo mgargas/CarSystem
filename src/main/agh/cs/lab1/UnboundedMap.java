@@ -3,25 +3,26 @@ package agh.cs.lab1;
 import java.util.*;
 
 public class UnboundedMap extends AbstractWorldMap {
-    Map<Position,HayStack> heyStacks=new LinkedHashMap<>();
+    Map<Position, HayStack> heyStacks = new LinkedHashMap<>();
 
-    UnboundedMap(Map<Position,HayStack> heyStacks){
-        this.heyStacks=heyStacks;
+    UnboundedMap(Map<Position, HayStack> heyStacks) {
+        this.heyStacks = heyStacks;
     }
 
     @Override
-    public boolean canMoveTo(Position position){
-        if(!isOccupied(position)) return true;
+    public boolean canMoveTo(Position position) {
+        if (!isOccupied(position)) return true;
         return false;
     }
+
     @Override
-    public boolean place(Car car){
-        if(isOccupied(car.getPosition())) {
+    public boolean place(Car car) {
+        if (isOccupied(car.getPosition())) {
             throw new IllegalArgumentException(car.getPosition().toString() + " jest zajęte");
             //return false;
-        }
-        else{
-            cars.put(car.getPosition(),car);
+        } else {
+            cars.put(car.getPosition(), car);
+            car.addObserver(this);
             return true;
         }
     }
@@ -44,34 +45,32 @@ public class UnboundedMap extends AbstractWorldMap {
 
     @Override
     public Object objectAt(Position position) {
-        if(cars.get(position)!=null) return cars.get(position);
-        else if(heyStacks.get(position)!=null) return heyStacks.get(position);
+        if (cars.get(position) != null) return cars.get(position);
+        else if (heyStacks.get(position) != null) return heyStacks.get(position);
         return null;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         MapVisualizer mapVisualizer = new MapVisualizer();
         BoundingBox boundingBox;
-        List<HayStack> hayStacksList =new ArrayList<>(heyStacks.values());
-        List<Car>carsList=new ArrayList<>(cars.values());
-        if(hayStacksList.get(0)!=null){
+        List<HayStack> hayStacksList = new ArrayList<>(heyStacks.values());
+        List<Car> carsList = new ArrayList<>(cars.values());
+        if (hayStacksList.get(0) != null) {
             Position firstObject = hayStacksList.get(0).getPosition();
             boundingBox = new BoundingBox(firstObject);
-        }
-        else if(carsList.get(0)!=null){
+        } else if (carsList.get(0) != null) {
             Position firstObject = carsList.get(0).getPosition();
             boundingBox = new BoundingBox(firstObject);
+        } else {
+            boundingBox = new BoundingBox(new Position(0, 0));
         }
-        else{
-            boundingBox = new BoundingBox(new Position(0,0));
-        }
-        for(HayStack s : hayStacksList){
+        for (HayStack s : hayStacksList) {
             boundingBox.grow(s.getPosition());
         }
-        for(Car c: carsList){
+        for (Car c : carsList) {
             boundingBox.grow(c.getPosition());
         }
-        return mapVisualizer.dump(this,boundingBox.getLeftCorner().add(new Position(-1,-1)),boundingBox.getRightCorner().add(new Position(1,1)));
+        return mapVisualizer.dump(this, boundingBox.getLeftCorner().add(new Position(-1, -1)), boundingBox.getRightCorner().add(new Position(1, 1)));
     }
 }

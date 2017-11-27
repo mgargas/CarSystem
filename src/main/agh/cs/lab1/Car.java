@@ -1,17 +1,31 @@
 package agh.cs.lab1;
 
-public class Car {
-    private MapDirection mapDirection;
-    private Position p;
-    private IWorldMap map;
+import java.util.HashSet;
 
+public class Car    {
+    private MapDirection mapDirection;
+    private Position position;
+    private IWorldMap map;
+    HashSet<IPositionChangeObserver> observers = new HashSet<>();
+    public void addObserver(IPositionChangeObserver observer){
+        observers.add(observer);
+    }
+
+    public void removeObserver(IPositionChangeObserver observer){
+        observers.remove(observer);
+    }
+    public void positionChanged(Position oldPosition, Position newPosition){
+        for(IPositionChangeObserver observer : observers){
+            observer.positionChanged(oldPosition,newPosition);
+        }
+    }
     public Car(IWorldMap map){
         this.mapDirection = MapDirection.North;
-        this.p = new Position(2,2);
+        this.position = new Position(2,2);
         this.map=map;
     }
     public Car(IWorldMap map, int x, int y){
-        this.p = new Position(x,y);
+        this.position = new Position(x,y);
         this.mapDirection = MapDirection.North;
         this.map=map;
     }
@@ -31,15 +45,15 @@ public class Car {
     }
 
     public Position getPosition() {
-        return p;
+        return position;
     }
     public MapDirection getDirection() {
         return mapDirection;
     }
     public void move(MoveDirection moveDirection){
-
+        Position oldPosition = position;
         Position n = new Position(0,0);
-        n=n.add(p);
+        n=n.add(position);
         switch (moveDirection){
             case Left:
                 this.mapDirection = this.mapDirection.previous();
@@ -51,22 +65,22 @@ public class Car {
                 switch (this.mapDirection){
                     case North:
                         n=n.add(new Position(0,1));
-                        if(map.canMoveTo(n)) this.p = n;
+                        if(map.canMoveTo(n)) this.position = n;
                         break;
 
                     case East:
                         n=n.add(new Position(1,0));
-                        if(map.canMoveTo(n)) this.p = n;
+                        if(map.canMoveTo(n)) this.position = n;
                         break;
 
                     case South:
                         n=n.add(new Position(0,-1));
-                        if(map.canMoveTo(n)) this.p = n;
+                        if(map.canMoveTo(n)) this.position = n;
                         break;
 
                     case West:
                         n=n.add(new Position(-1,0));
-                        if(map.canMoveTo(n)) this.p=n;
+                        if(map.canMoveTo(n)) this.position =n;
                         break;
 
                 }
@@ -75,24 +89,26 @@ public class Car {
                 switch (this.mapDirection){
                     case North:
                         n=n.add(new Position(0,-1));
-                        if(map.canMoveTo(n)) this.p=n;
+                        if(map.canMoveTo(n)) this.position =n;
                         break;
                     case East:
                         n=n.add(new Position(-1,0));
-                        if(map.canMoveTo(n)) this.p=n;
+                        if(map.canMoveTo(n)) this.position =n;
                         break;
                     case South:
                         n=n.add(new Position(0,1));
-                        if(map.canMoveTo(n)) this.p=n;
+                        if(map.canMoveTo(n)) this.position =n;
                         break;
                     case West:
                         n=n.add(new Position(1,0));
-                        if(map.canMoveTo(n)) this.p=n;
+                        if(map.canMoveTo(n)) this.position =n;
                         break;
                 }
                 break;
             }
 
+        Position newPosition = position;
+        positionChanged(oldPosition,newPosition);
         }
     }
 
